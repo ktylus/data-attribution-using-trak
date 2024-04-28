@@ -1,1 +1,1 @@
-# trak-project
+# trak-for-automating-science
