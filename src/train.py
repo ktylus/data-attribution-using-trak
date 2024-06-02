@@ -60,14 +60,12 @@ def train_model(
                 total_correct += correct
                 total_outputs += outputs.logits.shape[0]
 
-        print(f"[Epoch {epoch + 1}] Loss: {running_loss / i:.3f}, Train Acc: {train_correct/train_outputs:.3f}," +
-              f"Valid loss: {val_loss/len(val_dl):.3f} Valid Acc: {total_correct/total_outputs:.3f}")
+        print(f"[Epoch {epoch + 1}] Loss: {running_loss / len(train_dl):.3f}, Train Acc: {train_correct / train_outputs:.3f}," +
+              f"Valid loss: {val_loss / len(val_dl):.3f} Valid Acc: {total_correct / total_outputs:.3f}")
 
         if early_stopping:
             early_stopping(model, val_loss)
             if early_stopping.stop:
                 print(f"Early stopping at epoch {epoch + 1}")
+                model.load_state_dict(early_stopping.get_best_model_parameters())
                 break
-
-    if early_stopping:
-        model.load_state_dict(early_stopping.get_best_model_parameters())

@@ -1,3 +1,6 @@
+import copy
+
+
 class EarlyStopping:
     def __init__(self, patience: int, min_delta: float):
         self.patience = patience
@@ -9,7 +12,7 @@ class EarlyStopping:
 
     def __call__(self, model, val_loss):
         if val_loss < self.val_loss_min - self.min_delta:
-            self.best_parameters = model.state_dict()
+            self.best_parameters = copy.deepcopy(model.state_dict())
             self.val_loss_min = val_loss
             self.counter = 0
         else:
