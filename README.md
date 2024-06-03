@@ -1,5 +1,5 @@
-# Experimenting with TRAK
-### Project for Automating Science Using Deep Learning course at Jagiellonian University
+# Data Attribution using TRAK
+### Project for Automating Science using Deep Learning course at Jagiellonian University
 
 ---
 
