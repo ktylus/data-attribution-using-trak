@@ -1,0 +1,8 @@
+matplotlib==3.7.0
+numpy==1.26.4
+torch==2.1.0
+torchvision==0.16.0
+tqdm==4.65.0
+trak==0.1.2
+traker==0.3.2
+transformers==4.41.1

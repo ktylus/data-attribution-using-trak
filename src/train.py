@@ -13,7 +13,7 @@ def train_model(
         epochs: int,
         optimizer: torch.optim.Optimizer,
         early_stopping: EarlyStopping = None,
-        criterion=None
+        criterion = None
     ):
     criterion = criterion or torch.nn.CrossEntropyLoss()
     model = model.to(device)
