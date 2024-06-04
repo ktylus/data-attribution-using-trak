@@ -1,9 +1,11 @@
 import torch
 from torch import nn as nn
-from trak import modelout_functions, TRAKer
+from trak import modelout_functions
 from tqdm import tqdm
 from collections.abc import Iterable
 
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class ResNetOutput(modelout_functions.AbstractModelOutput):
     def __init__(self, loss_temperature: float = 1.0):
@@ -53,6 +55,7 @@ class ResNetOutput(modelout_functions.AbstractModelOutput):
 
         return (1 - ps).clone().detach().unsqueeze(-1)
 
+
 def featurize_traker(
         traker,
         train_dl: torch.utils.data.DataLoader
@@ -63,6 +66,7 @@ def featurize_traker(
         traker.featurize(batch=batch, num_samples=batch[0].shape[0])
 
     traker.finalize_features()
+
 
 def get_traker_scores(
         traker,

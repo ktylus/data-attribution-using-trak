@@ -1,6 +1,7 @@
 import numpy as np
 from tqdm import tqdm
 
+
 # https://openreview.net/pdf?id=Agekm5fdW3 - section 2.2
 def compute_class_weights(
         preds: np.ndarray,
@@ -16,6 +17,7 @@ def compute_class_weights(
         class_weights.append(np.exp(-1 / n_elements * np.sum(np.log(preds[targets == i][:, i]))))
     return np.array(class_weights)
 
+
 def compute_class_weights_original_formula(
         preds: np.ndarray,
         targets: np.ndarray,
@@ -28,6 +30,7 @@ def compute_class_weights_original_formula(
         # no minus sign before sum here
         class_weights.append(np.exp(1 / n_elements * np.sum(np.log(preds[targets == i][:, i]))))
     return np.array(class_weights)
+
 
 # https://openreview.net/pdf?id=Agekm5fdW3 - section 2.2
 def compute_class_alignment_scores(

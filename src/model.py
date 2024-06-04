@@ -22,6 +22,7 @@ def get_model(
 
     return model
 
+
 def compute_test_dataset_predictions(
         model: torch.nn.Module,
         test_dl: torch.utils.data.DataLoader
@@ -39,6 +40,7 @@ def compute_test_dataset_predictions(
     preds = torch.nn.functional.softmax(preds, dim=-1)
 
     return np.array(preds.tolist())
+
 
 def recall_for_class(
         model: torch.nn.Module,

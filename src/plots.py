@@ -2,6 +2,7 @@ import torch
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 def plot_single_image(
         image: torch.Tensor,
         label: str
@@ -9,6 +10,7 @@ def plot_single_image(
     plt.figure(figsize=(4, 4))
     _plot(image, label)
     plt.show()
+
 
 def plot_extreme_two_trak_examples_for_image(
         trak_scores: torch.Tensor,
@@ -38,6 +40,7 @@ def plot_extreme_two_trak_examples_for_image(
 
     plt.tight_layout()
     plt.show()
+
 
 def _plot(
         image: torch.Tensor,

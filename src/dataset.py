@@ -1,5 +1,5 @@
 import torch
-from torchvision.datasets import Food101, ImageFolder
+from torchvision.datasets import ImageFolder
 import numpy as np
 
 
@@ -29,6 +29,7 @@ def get_dataset_split(
 
     return train_subset, test_subset
 
+
 def get_chosen_classes(
         images_path: str,
         chosen_indices: list[int]
@@ -37,6 +38,7 @@ def get_chosen_classes(
     dataset.classes = [dataset.classes[i] for i in chosen_indices]
 
     return dataset.classes
+
 
 def get_dl_targets(
         dataloader: torch.utils.data.DataLoader
