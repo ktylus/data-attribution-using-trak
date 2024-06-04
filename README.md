@@ -17,5 +17,20 @@ that are mislabeled. Our hope was that they could be identified using TRAK.
 The results can be seen [here](https://docs.google.com/document/d/1epswAMVI0OixPNPi5R153WwKyNFZBPALeetgHCTlZLE).
 
 ### Using the code
-requirements.txt, instructions, trak github link perhaps
 
+Required packages are listed in requiremets.txt file. User is advised to use tools to create appriopriate working environmet, e.g. conda or pip:
+
+```
+pip install -r requirements.txt
+```
+
+The code is meant to be self-explanatory, lengthy implementation details are packed into modules. In code we use [TRAK](https://github.com/MadryLab/trak) repository. In particular, we implement a class inheriting from TRAK's AbstractModelOutput. Please notice that our implementation differs from the default [ImageClassificationModelOutput](https://trak.readthedocs.io/en/latest/modeloutput.html#implementation) very slightly - the only modification is a result of ResNet-18's output type, out of which we must treat output.logits as logits, to preserve TRAK's logic.
+
+As TRAK is parametrized, it is advised to become familiar with TRAK's documentation to get the best out of it in your application/field of interest.
+
+Depending on the hardware and software you possess, you are free to play around with more or less *computationally demanding* settings (including TRAK's settings). Although most of the notebook does not demand GPU to execute as it is, **TRAKer does**, so GPU is essential to reproduce all outcomes we have achieved.
+
+In case of any doubts, feel free to contact us via **issues**.
+
+Best regards,
+Authors
