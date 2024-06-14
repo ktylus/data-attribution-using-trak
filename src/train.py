@@ -13,7 +13,9 @@ def train_model(
         epochs: int,
         optimizer: torch.optim.Optimizer,
         early_stopping: EarlyStopping = None,
-        criterion = None
+        criterion = None,
+        epochs_per_checkpoint: int = None,
+        model_save_path: str = "model.pth",
     ):
     criterion = criterion or torch.nn.CrossEntropyLoss()
     model = model.to(device)
@@ -62,6 +64,9 @@ def train_model(
 
         print(f"[Epoch {epoch + 1}] Loss: {running_loss / len(train_dl):.3f}, Train Acc: {train_correct / train_outputs:.3f}," +
               f"Valid loss: {val_loss / len(val_dl):.3f} Valid Acc: {total_correct / total_outputs:.3f}")
+        
+        if epochs_per_checkpoint and (epoch + 1) % epochs_per_checkpoint == 0: 
+            torch.save(model.state_dict(), model_save_path.split(".")[0] + f"_cp_epoch{epoch + 1}.pth")
 
         if early_stopping:
             early_stopping(model, val_loss)
