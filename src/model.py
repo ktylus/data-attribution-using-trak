@@ -3,6 +3,7 @@ from torch import nn as nn
 from transformers import AutoModelForImageClassification
 from tqdm import tqdm
 import numpy as np
+import os
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -11,27 +12,34 @@ def get_model(
         resnet_version: str,
         num_classes: int
     ):
+    model_path = f"models/{resnet_version}_{num_classes}classes.pth"
     model = AutoModelForImageClassification.from_pretrained(resnet_version)
     model.classifier = nn.Sequential(
-                    nn.Flatten(start_dim=1, end_dim=-1),
-                    nn.Linear(in_features=512, out_features=num_classes))
+        nn.Flatten(start_dim=1, end_dim=-1),
+        nn.Linear(in_features=512, out_features=num_classes)
+    )
+    model.num_labels = num_classes
+
+    if not os.path.exists(model_path):
+        torch.save(model.state_dict(), model_path)
+    else:
+        model.load_state_dict(torch.load(model_path))
+        
     for param in model.classifier.parameters():
             param.requires_grad = True
-    
-    model.num_labels = num_classes
 
     return model
 
 
-def compute_test_dataset_predictions(
+def compute_val_dataset_predictions(
         model: torch.nn.Module,
-        test_dl: torch.utils.data.DataLoader
+        val_dl: torch.utils.data.DataLoader
     ):
     model.eval()
     preds = []
 
     with torch.no_grad():
-        for batch in tqdm(test_dl):
+        for batch in tqdm(val_dl):
             batch = [xy.to(device) for xy in batch]
             output = model(batch[0]).logits
             preds.extend(output.tolist())
@@ -44,7 +52,7 @@ def compute_test_dataset_predictions(
 
 def recall_for_class(
         model: torch.nn.Module,
-        test_dl: torch.utils.data.DataLoader,
+        val_dl: torch.utils.data.DataLoader,
         class_id: int
     ):
     model.eval()
@@ -53,7 +61,7 @@ def recall_for_class(
     n_all = 0
 
     with torch.no_grad():
-        for data, labels in tqdm(test_dl):
+        for data, labels in tqdm(val_dl):
             data, labels = data.to(device), labels.to(device)
             data = data[labels == class_id]
             if len(data) == 0:

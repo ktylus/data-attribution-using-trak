@@ -1,7 +1,11 @@
 import torch
+import numpy as np
 from tqdm import tqdm
 
 from src.early_stopping import EarlyStopping
+from src.class_metrics import compute_class_weights, compute_class_alignment_scores
+from src.model import compute_val_dataset_predictions
+from src.dataset import get_dl_targets
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -74,3 +78,33 @@ def train_model(
                 print(f"Early stopping at epoch {epoch + 1}")
                 model.load_state_dict(early_stopping.get_best_model_parameters())
                 break
+
+
+def train_without_bottom_k_alignment_scoring_data(
+        model: torch.nn.Module,
+        train_dataset: torch.utils.data.Dataset,
+        val_dataset: torch.utils.data.Dataset,
+        k: int,
+        trak_scores: np.ndarray,
+        batch_size: int,
+        epochs: int,
+        lr: float,
+        optimizer: torch.optim.Optimizer,
+        early_stopping: EarlyStopping = None,
+        criterion = None,
+):
+    val_dl = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+    val_targets = get_dl_targets(val_dl)
+    val_preds = compute_val_dataset_predictions(model, val_dl)
+    num_classes = len(train_dataset.classes)
+
+    class_weights = compute_class_weights(val_preds, val_targets, num_classes)
+    group_alignment_scores = compute_class_alignment_scores(trak_scores, val_targets, class_weights, num_classes)
+    sorted_group_alignment_scores = np.sort(group_alignment_scores)
+    example_indices_to_keep = np.nonzero(~(group_alignment_scores < sorted_group_alignment_scores[k]))[0]
+    
+    train_data_after_trak = torch.utils.data.Subset(train_dataset, example_indices_to_keep)
+    train_dl_after_trak = torch.utils.data.DataLoader(train_data_after_trak, batch_size=batch_size, shuffle=True)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    early_stopping = EarlyStopping(patience=3, min_delta=0.001)
+    train_model(model, train_dl_after_trak, val_dl, epochs, optimizer, early_stopping, criterion)
