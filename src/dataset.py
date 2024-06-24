@@ -2,17 +2,14 @@ import torch
 from torchvision.datasets import ImageFolder
 import numpy as np
 
-
-SEED = 42
-
 def get_dataset_split(
         images_path: str,
         chosen_indices: list[int],
         train_split_rate: float,
         test_split_rate: float,
+        seed: int,
         preprocess_fun=None
     ):
-
     num_classes = len(chosen_indices)
 
     dataset = ImageFolder(images_path, transform=preprocess_fun)
@@ -25,7 +22,7 @@ def get_dataset_split(
     dataset.samples = list(filter(lambda s: s[1] in chosen_indices, dataset.samples))
     dataset.samples = list(map(lambda s: (s[0], new_class_idx_mapping[s[1]]), dataset.samples))
 
-    train_subset, test_subset = torch.utils.data.random_split(dataset, [train_split_rate , test_split_rate], torch.Generator().manual_seed(SEED))
+    train_subset, test_subset = torch.utils.data.random_split(dataset, [train_split_rate , test_split_rate], torch.Generator().manual_seed(seed))
 
     return train_subset, test_subset
 

@@ -9,11 +9,12 @@ import os
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def get_model(
+	base_path: str,
         resnet_version: str,
         num_classes: int
     ):
-    model_path = f"models/{resnet_version}_{num_classes}classes.pth"
     model = AutoModelForImageClassification.from_pretrained(resnet_version)
+    resnet_version = resnet_version.split('/')[1]
     model.classifier = nn.Sequential(
         nn.Flatten(start_dim=1, end_dim=-1),
         nn.Linear(in_features=512, out_features=num_classes)
