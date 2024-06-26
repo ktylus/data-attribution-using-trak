@@ -9,7 +9,7 @@ import os
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def get_model(
-	base_path: str,
+	    base_path: str,
         resnet_version: str,
         num_classes: int
     ):
@@ -21,10 +21,10 @@ def get_model(
     )
     model.num_labels = num_classes
 
-    if not os.path.exists(model_path):
-        torch.save(model.state_dict(), model_path)
+    if not os.path.exists(base_path):
+        torch.save(model.state_dict(), base_path)
     else:
-        model.load_state_dict(torch.load(model_path))
+        model.load_state_dict(torch.load(base_path))
         
     for param in model.classifier.parameters():
             param.requires_grad = True
@@ -49,6 +49,32 @@ def compute_val_dataset_predictions(
     preds = torch.nn.functional.softmax(preds, dim=-1)
 
     return np.array(preds.tolist())
+
+
+def calculate_model_loss_and_accuracy(
+        model: torch.nn.Module,
+        val_dl: torch.utils.data.DataLoader,
+        criterion=nn.CrossEntropyLoss()
+    ):
+    model.eval()
+    total_correct = 0
+    total_outputs = 0
+    val_loss = 0.0
+
+    with torch.no_grad():
+        for i, data in enumerate(tqdm(val_dl), 0):
+            images, labels = data
+            images, labels = images.to(device), labels.to(device)
+
+            outputs = model(images)
+            val_loss += criterion(outputs.logits, labels).item()
+            correct = (torch.argmax(outputs.logits, dim=-1) == labels).sum().item()
+
+            total_correct += correct
+            total_outputs += outputs.logits.shape[0]
+    accuracy = total_correct / total_outputs
+    val_loss = val_loss / len(val_dl)
+    return val_loss, accuracy
 
 
 def recall_for_class(
