@@ -65,21 +65,25 @@ def featurize_traker(
 
         traker.featurize(batch=batch, num_samples=batch[0].shape[0])
 
-    traker.finalize_features()
-
-
 def get_traker_scores(
         traker,
         experiment_name: str,
-        checkpoint,
-        model_id: int,
+        checkpoints,
+        train_dl: torch.utils.data.DataLoader,
         test_dl: torch.utils.data.DataLoader
     ):
-    traker.start_scoring_checkpoint(exp_name=experiment_name, checkpoint=checkpoint, model_id=model_id, num_targets=len(test_dl.dataset))
-    
-    for batch in tqdm(test_dl):
-        batch = [xy.cuda() for xy in batch]
-        traker.score(batch=batch, num_samples=batch[0].shape[0])
+    for model_id, ckpt in enumerate(tqdm(checkpoints)):
+        traker.load_checkpoint(ckpt, model_id=model_id)
+        featurize_traker(traker, train_dl)
+
+    traker.finalize_features()
+
+    for model_id, ckpt in enumerate(tqdm(checkpoints)):
+        traker.start_scoring_checkpoint(exp_name=experiment_name, checkpoint=ckpt, model_id=model_id, num_targets=len(test_dl.dataset))
+
+        for batch in test_dl:
+            batch = [x.cuda() for x in batch]
+            traker.score(batch=batch, num_samples=batch[0].shape[0])
 
     test_scores = traker.finalize_scores(exp_name=experiment_name)
 
